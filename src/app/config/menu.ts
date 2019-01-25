@@ -469,7 +469,7 @@ export class MenuConfig implements ConfigModel {
 						title: 'Purchase Order',
 						root: true,
 						icon: 'flaticon-settings',
-						page: '/builder'
+						page: '/purchase-order'
 					},
 					{
 						title: 'Reporting Project',

@@ -28,6 +28,10 @@ const routes: Routes = [
 				loadChildren: './components/apps/mail/mail.module#MailModule'
 			},
 			{
+				path: 'purchase-order',
+				loadChildren: './purchaseorder/purchaseorder.module#PurchaseorderModule'
+			},
+			{
 				path: 'ecommerce',
 				loadChildren: './components/apps/e-commerce/e-commerce.module#ECommerceModule'
 			},
