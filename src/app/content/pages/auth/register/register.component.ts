@@ -13,6 +13,7 @@ import * as objectPath from 'object-path';
 import { AuthNoticeService } from '../../../../core/auth/auth-notice.service';
 import { SpinnerButtonOptions } from '../../../partials/content/general/spinner-button/button-options.interface';
 import { TranslateService } from '@ngx-translate/core';
+import { FeathersService } from './../../../feathers.service';
 
 @Component({
 	selector: 'm-register',
@@ -20,7 +21,9 @@ import { TranslateService } from '@ngx-translate/core';
 	styleUrls: ['./register.component.scss']
 })
 export class RegisterComponent implements OnInit {
-	public model: any = { email: '' };
+	public model:any;
+	emailtext:string;
+	passwordtext:string;
 	@Input() action: string;
 	@Output() actionChange = new Subject<string>();
 	public loading = false;
@@ -38,7 +41,7 @@ export class RegisterComponent implements OnInit {
 	};
 
 	constructor(
-		private authService: AuthenticationService,
+		private authService: FeathersService,
 		public authNoticeService: AuthNoticeService,
 		private translate: TranslateService
 	) {}
@@ -52,13 +55,21 @@ export class RegisterComponent implements OnInit {
 	}
 
 	submit() {
+		this.model = {
+			email:this.emailtext,
+			password:this.passwordtext
+		}
+		console.log(this.model)
 		this.spinner.active = true;
 		if (this.validate(this.f)) {
-			this.authService.register(this.model).subscribe(response => {
+			this.authService.service('users').create(this.model).then(response => {
 				this.action = 'login';
 				this.actionChange.next(this.action);
 				this.spinner.active = false;
 				this.authNoticeService.setNotice(this.translate.instant('AUTH.REGISTER.SUCCESS'), 'success');
+			}).catch(err =>{
+				this.authNoticeService.setNotice(this.translate.instant('AUTH.REGISTER.ERROR'), 'error');
+				this.spinner.active = false;
 			});
 		}
 	}

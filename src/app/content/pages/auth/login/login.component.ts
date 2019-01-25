@@ -9,7 +9,6 @@ import {
 	ChangeDetectorRef,
 	HostBinding
 } from '@angular/core';
-import { AuthenticationService } from '../../../../core/auth/authentication.service';
 import { Router } from '@angular/router';
 import { Subject } from 'rxjs';
 import { AuthNoticeService } from '../../../../core/auth/auth-notice.service';
@@ -17,6 +16,8 @@ import { NgForm } from '@angular/forms';
 import * as objectPath from 'object-path';
 import { TranslateService } from '@ngx-translate/core';
 import { SpinnerButtonOptions } from '../../../partials/content/general/spinner-button/button-options.interface';
+import { AuthenticationService } from './../../../authentication.service';
+import { FeathersService } from './../../../feathers.service';
 
 @Component({
 	selector: 'm-login',
@@ -25,7 +26,9 @@ import { SpinnerButtonOptions } from '../../../partials/content/general/spinner-
 	changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class LoginComponent implements OnInit, OnDestroy {
-	public model: any = { email: 'admin@demo.com', password: 'demo' };
+	public model:any;
+	emailtext:string;
+	passwordtext:string;
 	@HostBinding('class') classes: string = 'm-login__signin';
 	@Output() actionChange = new Subject<string>();
 	public loading = false;
@@ -45,7 +48,7 @@ export class LoginComponent implements OnInit, OnDestroy {
 	};
 
 	constructor(
-		private authService: AuthenticationService,
+		private authService: FeathersService,
 		private router: Router,
 		public authNoticeService: AuthNoticeService,
 		private translate: TranslateService,
@@ -54,16 +57,22 @@ export class LoginComponent implements OnInit, OnDestroy {
 
 	submit() {
 		this.spinner.active = true;
+		this.model = {
+			email:this.emailtext,
+			password:this.passwordtext,
+			strategy:'local'
+		}
+		console.log(this.model)
 		if (this.validate(this.f)) {
-			this.authService.login(this.model).subscribe(response => {
-				if (typeof response !== 'undefined') {
-					this.router.navigate(['/']);
-				} else {
-					this.authNoticeService.setNotice(this.translate.instant('AUTH.VALIDATION.INVALID_LOGIN'), 'error');
-				}
+			this.authService.authenticate(this.model).then(response => {
+				this.router.navigate(['/']);
 				this.spinner.active = false;
 				this.cdr.detectChanges();
-			});
+			}) .catch(err => {
+				this.authNoticeService.setNotice(this.translate.instant('AUTH.VALIDATION.INVALID_LOGIN'), 'error');
+				this.spinner.active = false;
+				this.cdr.detectChanges();
+			  });
 		}
 	}
 

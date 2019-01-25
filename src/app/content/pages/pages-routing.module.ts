@@ -5,19 +5,13 @@ import { ActionComponent } from './header/action/action.component';
 import { NgxPermissionsGuard } from 'ngx-permissions';
 import { ProfileComponent } from './header/profile/profile.component';
 import { ErrorPageComponent } from './snippets/error-page/error-page.component';
+import { AuthguardGuard } from '../auth/authguard.guard';
 
 const routes: Routes = [
 	{
 		path: '',
 		component: PagesComponent,
-		canActivate: [NgxPermissionsGuard],
-		data: {
-			permissions: {
-				only: ['ADMIN', 'USER'],
-				except: ['GUEST'],
-				redirectTo: '/login'
-			}
-		},
+		canActivate: [AuthguardGuard],
 		children: [
 			{
 				path: '',
@@ -91,6 +85,6 @@ const routes: Routes = [
 
 @NgModule({
 	imports: [RouterModule.forChild(routes)],
-	exports: [RouterModule]
+exports: [RouterModule]
 })
 export class PagesRoutingModule {}
